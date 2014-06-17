@@ -1,4 +1,5 @@
 keystroke
-log
+log*
+analyze.py
 *.o
 
