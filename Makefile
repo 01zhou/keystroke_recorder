@@ -1,4 +1,4 @@
-CFLAGS = -Wall -std=c++11 -O3
+CFLAGS = -Wall -O3
 
 all: keystroke
 
