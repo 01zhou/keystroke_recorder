@@ -1,33 +1,26 @@
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #include <unistd.h>
-
 
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 
 #include <iostream>
+
 using namespace std;
-
-
-struct KeyStrokeEvent
-{
-    int time;
-    enum type
-    {
-        PRESS,
-        RELEASE
-    };
-    char value;
-};
 
 int main(int argc, char** argv)
 {
     int fd[2];
     pid_t pid;
-    pipe(fd);
+    int r = pipe(fd);
+    if(r!=0)
+    {
+        fprintf(stderr, "Unable to create pipe!\n");
+        exit(EXIT_FAILURE);
+    }
+
     int rpipe = fd[0];
     int wpipe = fd[1];
 
@@ -36,8 +29,13 @@ int main(int argc, char** argv)
     {
         close(rpipe);
         dup2(wpipe, STDOUT_FILENO);
-        system("xev");
-        exit(0);
+        int r = system("xev");
+        if(r!=0)
+        {
+            fprintf(stderr, "xev error!\n");
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_SUCCESS);
     }
     else
     {
@@ -53,7 +51,12 @@ int main(int argc, char** argv)
             size_t nbytes = read(rpipe, buf, sizeof(buf)-1);
             string event(buf, 0, nbytes);
             event = string("perl regex.pl \"")+event+string("\"");
-            system(event.c_str());
+            int r = system(event.c_str());
+            if(r!=0)
+            {
+                fprintf(stderr, "Perl error!\n");
+                exit(EXIT_FAILURE);
+            }
         }
     }
 }
