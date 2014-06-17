@@ -9,7 +9,6 @@
 #include <cstdio>
 
 #include <iostream>
-
 using namespace std;
 
 
@@ -24,23 +23,8 @@ struct KeyStrokeEvent
     char value;
 };
 
-KeyStrokeEvent getEvent(string str)
-{
-    cout<< str<<endl;
-    KeyStrokeEvent kse;
-    //TODO
-    return kse;
-}
-
 int main(int argc, char** argv)
 {
-    if(argc<2)
-    {
-        fprintf(stderr, "usage: %s logfile\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
-
     int fd[2];
     pid_t pid;
     pipe(fd);
@@ -58,7 +42,6 @@ int main(int argc, char** argv)
     else
     {
         close(wpipe);
-        cout<<"Begin parent"<<endl;
         char buf[1025];
         while(true)
         {
@@ -69,9 +52,8 @@ int main(int argc, char** argv)
 
             size_t nbytes = read(rpipe, buf, sizeof(buf)-1);
             string event(buf, 0, nbytes);
-
-            KeyStrokeEvent kse = getEvent(event);
+            event = string("perl regex.pl \"")+event+string("\"");
+            system(event.c_str());
         }
-        cout<<"Done"<<endl;
     }
 }
